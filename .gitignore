@@ -42,7 +42,6 @@ Icon
 
 ### Gradle ###
 # Exclude Folder List #
-.gradle/
 build/
 
 
