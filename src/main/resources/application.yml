@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      username: root
+      password: rootpassword
+      host: localhost
+      port: 27017
+      database: trip-tide-users
+      authentication-database: admin
