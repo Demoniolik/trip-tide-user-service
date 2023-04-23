@@ -2,12 +2,15 @@ package com.travel.trip.tide.user.model.registration;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRegistrationResponseModel {
+@EqualsAndHashCode(callSuper = true)
+public class UserRegistrationResponseModel extends RepresentationModel<UserRegistrationResponseModel> {
 
     private String id;
     private String firstName;

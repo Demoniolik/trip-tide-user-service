@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
@@ -39,22 +42,24 @@ public class UserController {
     public ResponseEntity<UserResponseModel> getUserById(
             @PathVariable String id
     ) {
-        return ResponseEntity.ok(userService.getUserById(id));
+        return ResponseEntity.ok(applyHateous(userService.getUserById(id)));
     }
 
     @GetMapping("/search/email")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UserResponseModel> getUserByEmail(
             @RequestParam String email) {
-        return ResponseEntity.ok(userService.getUserByEmail(email));
+        return ResponseEntity.ok(applyHateous(userService.getUserByEmail(email)));
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<UserRegistrationResponseModel> register(
             @Valid @RequestBody UserRegistrationRequestModel userRegistrationModel) {
-        return new ResponseEntity<>(userService.register(userRegistrationModel),
-                HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                applyHateous(userService.register(userRegistrationModel)),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping("/{id}")
@@ -62,8 +67,56 @@ public class UserController {
     public ResponseEntity<UserUpdateResponseModel> update(
             @PathVariable String id,
             @Valid @RequestBody UserUpdateRequestModel userUpdateModel) {
-        return ResponseEntity.ok(userService.updateUser(id, userUpdateModel));
+        return ResponseEntity.ok(
+                applyHateous(id, userService.updateUser(id, userUpdateModel))
+        );
+    }
+
+    private UserRegistrationResponseModel applyHateous(
+            UserRegistrationResponseModel userModel) {
+        var slefLink = linkTo(UserController.class)
+                .slash(userModel.getId())
+                .withSelfRel();
+        var updateUserDetails = linkTo(methodOn(UserController.class)
+                .update(userModel.getId(), new UserUpdateRequestModel())).withRel("update");
+        var getUserByEmail = linkTo((methodOn(UserController.class)
+                .getUserByEmail(userModel.getEmail()))).withRel("getUserByEmail");
+        userModel.add(slefLink, updateUserDetails, getUserByEmail);
+
+        return userModel;
+    }
+
+    private UserResponseModel applyHateous(
+            UserResponseModel userModel) {
+        var slefLink = linkTo(UserController.class)
+                .slash(userModel.getId())
+                .withSelfRel();
+        var updateUserDetails = linkTo(methodOn(UserController.class)
+                .update(userModel.getId(), new UserUpdateRequestModel()))
+                .withRel("update");
+        var getUserByEmail = linkTo((methodOn(UserController.class)
+                .getUserByEmail(userModel.getEmail())))
+                .withRel("getUserByEmail");
+        userModel.add(slefLink, updateUserDetails, getUserByEmail);
+
+        return userModel;
+    }
+
+    private UserUpdateResponseModel applyHateous(
+            String id,
+            UserUpdateResponseModel userModel) {
+        var slefLink = linkTo(UserController.class)
+                .slash(id)
+                .withSelfRel();
+        var updateUserDetails = linkTo(methodOn(UserController.class)
+                .update(id, new UserUpdateRequestModel()))
+                .withRel("update");
+        var getUserByEmail = linkTo((methodOn(UserController.class)
+                .getUserByEmail(userModel.getEmail())))
+                .withRel("getUserByEmail");
+        userModel.add(slefLink, updateUserDetails, getUserByEmail);
+
+        return userModel;
     }
 
 }
-

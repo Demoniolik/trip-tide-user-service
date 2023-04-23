@@ -2,12 +2,16 @@ package com.travel.trip.tide.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseModel {
+@EqualsAndHashCode(callSuper = true)
+public class UserResponseModel extends RepresentationModel<UserResponseModel> {
 
     private String id;
     private String firstName;
