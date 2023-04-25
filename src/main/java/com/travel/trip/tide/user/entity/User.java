@@ -4,6 +4,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -14,8 +15,8 @@ import java.time.LocalDateTime;
 
 
 @Data
-@Builder
 @Document("users")
+@NoArgsConstructor
 public class User {
 
     @Id
