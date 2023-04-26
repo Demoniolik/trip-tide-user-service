@@ -41,6 +41,12 @@ tasks.named('test') {
 	finalizedBy jacocoTestReport
 }
 
+jacocoTestReport {
+	reports {
+		xml.enabled true
+	}
+}
+
 jacocoTestCoverageVerification {
 	violationRules {
 		rule {
@@ -57,6 +63,8 @@ jacocoTestCoverageVerification {
 		}
 	}
 }
+
+test.finalizedBy jacocoTestReport
 
 sonarqube {
 	properties {
