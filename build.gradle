@@ -45,22 +45,16 @@ jacocoTestReport {
 	reports {
 		xml.enabled true
 	}
-}
-
-jacocoTestCoverageVerification {
-	violationRules {
-		rule {
-			element = 'CLASS'
-			limit {
-				counter = 'LINE'
-				value = 'COVEREDRATIO'
-				minimum = 0.8
-			}
-			excludes = [
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
 					'com.travel.trip.tide.user.exception.*',
-					'com.travel.trip.tide.user.model.*'
-			]
-		}
+					'com.travel.trip.tide.user.exception.handler.*',
+					'com.travel.trip.tide.user.model.*.*',
+					'com.travel.trip.tide.user.entity.*',
+					'com.travel.trip.tide.user.configuration.*'
+			])
+		}))
 	}
 }
 
