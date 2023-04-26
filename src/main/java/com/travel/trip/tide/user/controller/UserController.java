@@ -1,24 +1,16 @@
 package com.travel.trip.tide.user.controller;
 
-import com.travel.trip.tide.user.model.registration.UserRegistrationRequestModel;
-import com.travel.trip.tide.user.model.registration.UserRegistrationResponseModel;
 import com.travel.trip.tide.user.model.UserResponseModel;
 import com.travel.trip.tide.user.model.UserUpdateRequestModel;
 import com.travel.trip.tide.user.model.UserUpdateResponseModel;
+import com.travel.trip.tide.user.model.registration.UserRegistrationRequestModel;
+import com.travel.trip.tide.user.model.registration.UserRegistrationResponseModel;
 import com.travel.trip.tide.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,6 +21,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
+
+    private static final String UPDATE_USER_HINT
+            = "update";
+    private static final String GET_USER_BY_EMAIL_HINT
+            = "getUserByEmail";
 
     private final UserService userService;
 
@@ -78,9 +75,9 @@ public class UserController {
                 .slash(userModel.getId())
                 .withSelfRel();
         var updateUserDetails = linkTo(methodOn(UserController.class)
-                .update(userModel.getId(), new UserUpdateRequestModel())).withRel("update");
+                .update(userModel.getId(), new UserUpdateRequestModel())).withRel(UPDATE_USER_HINT);
         var getUserByEmail = linkTo((methodOn(UserController.class)
-                .getUserByEmail(userModel.getEmail()))).withRel("getUserByEmail");
+                .getUserByEmail(userModel.getEmail()))).withRel(GET_USER_BY_EMAIL_HINT);
         userModel.add(slefLink, updateUserDetails, getUserByEmail);
 
         return userModel;
@@ -93,10 +90,10 @@ public class UserController {
                 .withSelfRel();
         var updateUserDetails = linkTo(methodOn(UserController.class)
                 .update(userModel.getId(), new UserUpdateRequestModel()))
-                .withRel("update");
+                .withRel(UPDATE_USER_HINT);
         var getUserByEmail = linkTo((methodOn(UserController.class)
                 .getUserByEmail(userModel.getEmail())))
-                .withRel("getUserByEmail");
+                .withRel(GET_USER_BY_EMAIL_HINT);
         userModel.add(slefLink, updateUserDetails, getUserByEmail);
 
         return userModel;
@@ -110,10 +107,10 @@ public class UserController {
                 .withSelfRel();
         var updateUserDetails = linkTo(methodOn(UserController.class)
                 .update(id, new UserUpdateRequestModel()))
-                .withRel("update");
+                .withRel(UPDATE_USER_HINT);
         var getUserByEmail = linkTo((methodOn(UserController.class)
                 .getUserByEmail(userModel.getEmail())))
-                .withRel("getUserByEmail");
+                .withRel(GET_USER_BY_EMAIL_HINT);
         userModel.add(slefLink, updateUserDetails, getUserByEmail);
 
         return userModel;
