@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.0.6'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id "org.sonarqube" version "4.0.0.2929"
+	id 'jacoco'
 }
 
 group = 'com.travel'
@@ -37,6 +38,24 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.8
+			}
+			excludes = [
+					'com.travel.trip.tide.user.exception.*',
+					'com.travel.trip.tide.user.model.*'
+			]
+		}
+	}
 }
 
 sonarqube {
