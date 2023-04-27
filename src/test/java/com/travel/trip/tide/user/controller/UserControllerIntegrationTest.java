@@ -3,6 +3,7 @@ package com.travel.trip.tide.user.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.trip.tide.user.entity.User;
 import com.travel.trip.tide.user.model.UserResponseModel;
+import com.travel.trip.tide.user.model.UserUpdateRequestModel;
 import com.travel.trip.tide.user.model.error.ErrorResponseModel;
 import com.travel.trip.tide.user.model.error.UserValidationErrorResponseModel;
 import com.travel.trip.tide.user.model.registration.UserRegistrationRequestModel;
@@ -28,11 +29,11 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -329,6 +330,115 @@ class UserControllerIntegrationTest {
                         .value(expectedErrorResponseModel.getErrorCode()))
                 .andExpect(jsonPath("$.errorDescription")
                         .value(expectedErrorResponseModel.getErrorDescription()));
+    }
+
+    @Test
+    void shouldUserNotFoundResponseErrorWhenUpdatingUserWithWrongId() throws Exception {
+        //GIVEN
+
+        var user = new User();
+        var wrongId = "wrong id";
+        user.setFirstName("First name");
+        user.setLastName("Last name");
+        user.setId("correct id");
+        var updateRequestModel = UserUpdateRequestModel.builder()
+                .email("some@email.com")
+                .build();
+        var expectedErrorResponseModel = new ErrorResponseModel(
+                "user.not.found.by.id",
+                "user was not found by the provided id " + wrongId
+        );
+        var updateRequestModelString = objectMapper
+                .writeValueAsString(updateRequestModel);
+
+        //WHEN
+
+        userRepository.save(user);
+
+        //THEN;
+        var userUpdateRequestUrl = USER_CONTROLLER_URL + "/{id}";
+        mockMvc.perform(
+                        put(userUpdateRequestUrl, wrongId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updateRequestModelString)
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode")
+                        .value(expectedErrorResponseModel.getErrorCode()))
+                .andExpect(jsonPath("$.errorDescription")
+                        .value(expectedErrorResponseModel.getErrorDescription()));
+    }
+
+    @Test
+    void shouldThrowUserAlreadyOccupiedResponseErrorWhenProvidedUpdateEmailIsTheSameAsWasOrAlreadyOccupiedBySomeone()
+            throws Exception {
+        //GIVEN
+
+        var user = new User();
+        var userId = "id";
+        var duplicateEmail = "some@email.com";
+        user.setFirstName("First name");
+        user.setLastName("Last name");
+        user.setEmail(duplicateEmail);
+        user.setId(userId);
+        var updateRequestModel = UserUpdateRequestModel.builder()
+                .email(duplicateEmail)
+                .build();
+        var expectedErrorResponseModel = new ErrorResponseModel(
+                "user.email.already.occupied",
+                "The given email is already occupied: " + duplicateEmail
+        );
+        var updateRequestModelString = objectMapper
+                .writeValueAsString(updateRequestModel);
+
+        //WHEN
+
+        userRepository.save(user);
+
+        //THEN;
+        var userUpdateRequestUrl = USER_CONTROLLER_URL + "/{id}";
+        mockMvc.perform(
+                        put(userUpdateRequestUrl, userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updateRequestModelString)
+                )
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errorCode")
+                        .value(expectedErrorResponseModel.getErrorCode()))
+                .andExpect(jsonPath("$.errorDescription")
+                        .value(expectedErrorResponseModel.getErrorDescription()));
+    }
+
+    @Test
+    void exceptionShouldBeThrownWhenNonValidDataComesInForUserUpdate() throws Exception {
+        //GIVEN
+
+        var userId = "id";
+        var updateRequestModel = UserUpdateRequestModel.builder()
+                .email("123")
+                .lastName("Doe231321")
+                .firstName("1")
+                .phoneNumber("2")
+                .build();
+        var expectedErrorResponseModel = new UserValidationErrorResponseModel(
+                "user.validation.error",
+                Collections.emptyList()
+        );
+        var updateRequestModelString = objectMapper
+                .writeValueAsString(updateRequestModel);
+
+        //THEN;
+        var userUpdateRequestUrl = USER_CONTROLLER_URL + "/{id}";
+        mockMvc.perform(
+                        put(userUpdateRequestUrl, userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updateRequestModelString)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode")
+                        .value(expectedErrorResponseModel.getErrorCode()))
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors", hasSize(4)));
     }
 
 
