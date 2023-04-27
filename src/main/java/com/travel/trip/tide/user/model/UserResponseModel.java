@@ -17,7 +17,6 @@ public class UserResponseModel extends RepresentationModel<UserResponseModel> {
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
     private String phoneNumber;
 
 }

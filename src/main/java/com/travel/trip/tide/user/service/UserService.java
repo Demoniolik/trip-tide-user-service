@@ -73,7 +73,7 @@ public class UserService {
                 .orElseThrow(() -> {
                     log.error("User was not found by given email " + email);
                     return new UserNotFoundException(
-                            "user.not.found.by.id",
+                            "user.not.found.by.email",
                             "user was not found by the provided email " + email
                     );
                 });
