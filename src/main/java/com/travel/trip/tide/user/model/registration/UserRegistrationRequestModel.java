@@ -1,0 +1,36 @@
+package com.travel.trip.tide.user.model.registration;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserRegistrationRequestModel {
+
+    @NotNull
+    @Pattern(regexp = "\\p{L}{3,25}",
+            message = "The field should contain only letters and be at least 3 characters long")
+    private String firstName;
+    @NotNull
+    @Pattern(regexp = "\\p{L}{3,25}",
+            message = "The field should contain only letters and be at least 3 characters long")
+    private String lastName;
+    @NotNull
+    @Email
+    private String email;
+    @NotNull
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
+            message = "The password should contain minimum eight characters, " +
+                    "at least one letter, one number and one special character")
+    private String password;
+    @NotNull
+    @Pattern(regexp = "^\\+?[1-9][0-9]{7,14}$",
+    message = "The phone number should start from the + and contain the country code")
+    private String phoneNumber;
+
+}
