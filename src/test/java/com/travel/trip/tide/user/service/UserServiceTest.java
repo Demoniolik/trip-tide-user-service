@@ -132,7 +132,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenNonExistingUserId() {
+    void shouldThrowUserNotFoundExceptionWhenNonExistingUserIdForGetUserById() {
         //GIVEN
 
         var nonExistingUserId = "nonExistingId";
@@ -181,7 +181,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenProvidedNonExistingEmail() {
+    void shouldThrowUserNotFoundExceptionWhenProvidedNonExistingEmailForGettingUserByEmail() {
         //GIVEN
 
         var nonExistingUserEmail = "non.existing.email@gmail.com";
@@ -240,6 +240,68 @@ class UserServiceTest {
         verify(userRepository, times(1))
                 .save(user);
         verify(userRepository, never())
+                .findByEmail(anyString());
+    }
+
+    @Test
+    void shouldThrowUserNotFoundExceptionWhenUpdatingWithWrongId() {
+        //GIVEN
+
+        var user = new User();
+        var wrongUserId = "userId";
+        var userUpdateRequestModel = UserUpdateRequestModel.builder()
+                .lastName("Carlos")
+                .build();
+
+        //WHEN
+
+        when(userRepository.findById(anyString()))
+                .thenReturn(Optional.empty());
+
+        //THEN
+
+        assertThrows(UserNotFoundException.class, () -> userService
+                .updateUser(wrongUserId, userUpdateRequestModel));
+
+        verify(userService, times(1))
+                .updateUser(anyString(), any(UserUpdateRequestModel.class));
+        verify(userRepository, times(1))
+                .findById(anyString());
+        verify(userRepository, never())
+                .save(user);
+        verify(userRepository, never())
+                .findByEmail(anyString());
+    }
+
+    @Test
+    void shouldThrowUserEmailAlreadyOccupiedWhenUpdatingTheUserEmail() {
+        //GIVEN
+
+        var duplicationEmail = "some@email.com";
+        var user = new User();
+        user.setEmail(duplicationEmail);
+        var userId = "userId";
+        var userUpdateRequestModel = UserUpdateRequestModel.builder()
+                .email(duplicationEmail)
+                .build();
+
+        //WHEN
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(Optional.of(user));
+
+        //THEN
+
+        assertThrows(UserEmailAlreadyOccupied.class, () -> userService
+                .updateUser(userId, userUpdateRequestModel));
+
+        verify(userService, times(1))
+                .updateUser(anyString(), any(UserUpdateRequestModel.class));
+        verify(userRepository, never())
+                .findById(anyString());
+        verify(userRepository, never())
+                .save(user);
+        verify(userRepository, times(1))
                 .findByEmail(anyString());
     }
 
