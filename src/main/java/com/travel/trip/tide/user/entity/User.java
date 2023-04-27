@@ -2,7 +2,6 @@ package com.travel.trip.tide.user.entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
